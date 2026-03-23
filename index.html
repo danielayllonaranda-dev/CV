@@ -492,27 +492,24 @@
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ── EDAT DINÀMICA ──
+<script>
+// ── EDAT I CARNET DINÀMICS ──
 (function(){
-  const born = new Date(2005, 6, 10); // 10 de juliol de 2005
+  const born = new Date(2005, 6, 10);
   const now = new Date();
   let age = now.getFullYear() - born.getFullYear();
   const notYet = now.getMonth() < born.getMonth() || (now.getMonth() === born.getMonth() && now.getDate() < born.getDate());
   if (notYet) age--;
-  const el = document.getElementById('age-display');
-  if (el) el.textContent = age + ' anys';
-
+  const ageEl = document.getElementById('age-display');
+  if (ageEl) ageEl.textContent = age + ' anys';
   const carnetEl = document.getElementById('carnet-display');
   if (carnetEl) {
-    const carnetDate = new Date(now.getFullYear(), 6, 4); // 4 de juliol d'aquest any
-    // Si ja han passat el 4 de juliol d'algun any (qualsevol any), és B
-    const isB = now >= carnetDate || now.getFullYear() > carnetDate.getFullYear();
+    const isB = now >= new Date(now.getFullYear(), 6, 4);
     carnetEl.textContent = isB ? 'Conduir (B)' : 'Conduir (L)';
   }
 })();
 
-// ── STARS ──
+// ── ESTRELLES ──
 const cv = document.getElementById('starfield'), cx = cv.getContext('2d');
 let stars = [];
 function rsz() { cv.width = innerWidth; cv.height = innerHeight; }
@@ -520,50 +517,55 @@ function init() { stars=[]; for(let i=0;i<150;i++) stars.push({x:Math.random()*c
 function draw() { cx.clearRect(0,0,cv.width,cv.height); stars.forEach(s=>{ cx.beginPath(); cx.arc(s.x,s.y,s.r,0,Math.PI*2); cx.fillStyle=`rgba(200,215,255,${s.o})`; cx.fill(); s.y+=s.s; if(s.y>cv.height){s.y=0;s.x=Math.random()*cv.width;} }); requestAnimationFrame(draw); }
 rsz(); init(); draw(); addEventListener('resize',()=>{rsz();init();});
 
-// ── ROUTING ──
-function show(id) {
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+// ── NAVEGACIÓ ──
+window.show = function(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.s===id));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.s === id));
   document.getElementById('nav-links').classList.remove('open');
-  scrollTo(0,0);
-  if(id==='skills') setTimeout(()=>{ document.querySelectorAll('.skill-fill').forEach(el=>el.style.transform=`scaleX(${el.dataset.w})`); },120);
-}
+  window.scrollTo(0, 0);
+  if (id === 'skills') setTimeout(() => {
+    document.querySelectorAll('.skill-fill').forEach(el => el.style.transform = `scaleX(${el.dataset.w})`);
+  }, 120);
+};
 
-// ── FORM ──
-function sendForm(e) {
+// ── FORMULARI ──
+window.sendForm = function(e) {
   e.preventDefault();
-  const n=document.getElementById('fn').value, em=document.getElementById('fe').value;
-  const c=document.getElementById('fc').value, s=document.getElementById('fs').value, m=document.getElementById('fm').value;
-  const body=`Nom: ${n}\nEmpresa: ${c}\n\n${m}`;
-  location.href=`mailto:danielayllonaranda@gmail.com?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(body)}`;
-  document.getElementById('fsuccess').style.display='block';
+  const n = document.getElementById('fn').value;
+  const c = document.getElementById('fc').value;
+  const s = document.getElementById('fs').value;
+  const m = document.getElementById('fm').value;
+  const body = `Nom: ${n}\nEmpresa: ${c}\n\n${m}`;
+  window.location.href = `mailto:danielayllonaranda@gmail.com?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(body)}`;
+  document.getElementById('fsuccess').style.display = 'block';
   document.getElementById('cform').reset();
-}
+};
 
-// ── CHATBOT ──
-let chatOpen=false, hist=[];
-const SYS=`Ets l'assistent virtual de'n Daniel Ayllón Aranda, integrat al seu currículum web. Respon preguntes sobre ell de manera professional, amable i concisa.
+// ── XATBOT ──
+let chatOpen = false, hist = [];
+
+const SYS = `Ets l'assistent virtual de'n Daniel Ayllón Aranda, integrat al seu currículum web. Respon preguntes sobre ell de manera professional, amable i concisa.
 
 Informació sobre Daniel:
 - Nom: Daniel Ayllón Aranda. Nascut 10/07/2005, Martorell. Resident a Castellbisbal (08755).
 - Estudis: Grau en Física, Universitat de Barcelona (2023-actualitat). Batxillerat Científic-Tecnològic INS Castellbisbal (2021-2023).
-- Disponibilitat: Caps de setmana i vacances. Carnet de conduir (L).
+- Disponibilitat: Caps de setmana i vacances. Carnet de conduir.
 - Contacte: +34 663 24 47 60 | danielayllonaranda@gmail.com
 
 Experiència:
-- Expositor Saló Ensenyament (UB, Març 2026): divulgació Física/Química.
+- Expositor Saló Ensenyament (UB, Març 2026): divulgació Física/Química/EET.
 - Intervenció educativa TDA/TEA/AACC (Escola EFA, Des.2025-Gen.2026).
-- Monitor de Lleure, Casal, Planetari i Telescopis (Polaris Lleure, esporàdic): monitor de casal, tallers de ciència, circ, Planetari Mòbil i Taller de Telescopis.
-- Monitor Lleure + Tècnic So (Quiràlia-Igualada, Des.2024-Gen.2025).
-- Monitor Colònies en anglès (Eix Estels, Jul.2024).
-- Professor repàs particular (ciències, arts, tecnologia).
+- Monitor de Lleure, Casal, Planetari i Telescopis (Polaris Lleure, esporàdic).
+- Monitor de Lleure (Quiràlia-Ajuntament Igualada, Des.2024-Gen.2025): Saló de la Infància i Planetari.
+- Monitor Colònies en anglès (Eix Estels-Mas Banyeres, Jul.2024).
+- Professor repàs particular (ciències, arts, tecnologia, llengua).
 - Coordinació Teatre i Música INS Castellbisbal (2018-2023, 5 anys).
-- Voluntari teatre ONG Ànemos (2019-2020).
+- Voluntari teatre i disseny ONG Ànemos (2019-2020).
 
-Cursos: Monitor/a Lleure (Dinàmics, 2023-2024), Manipulador Aliments (99Labs, 2025), Primers Auxilis (Creu Roja), Música Rhythm4Days (Music.cat, 2023), Impressió 3D (Robòtica Esparreguera, 2023), Erasmus+ Corresponsals (2022).
+Cursos: Monitor/a Lleure titulació oficial (Dinàmics, 2023-2024), Manipulador Aliments (99Labs, 2025), Primers Auxilis Creu Roja, Música Rhythm4Days (Music.cat, 2023), Impressió 3D (Robòtica Esparreguera, 2023), Erasmus+ Corresponsals Juvenils (2022).
 
-Habilitats: Coordinació grups, informàtica, so, disseny 3D Blender, impressió 3D, comunicació, arts escèniques, música (diverses instruments), resolució problemes.
+Habilitats: Coordinació grups, informàtica, disseny 3D Blender, impressió 3D, comunicació i divulgació, arts escèniques, música (diverses instruments), resolució problemes.
 
 Idiomes: Castellà i Català (natius), Anglès C1, Francès B1, LSC A1.
 
@@ -571,38 +573,71 @@ Personalitat: Tranquil, endreçat, educat, amable, esforçat. Apassionat per mú
 
 Respon SEMPRE en català (o en l'idioma que t'escrigui l'usuari). Respostes breus (2-4 frases), professionals i entusiastes. Si demanen contacte, dona email i telèfon.`;
 
-function toggleChat(){
-  chatOpen=!chatOpen;
-  document.getElementById('chat-window').classList.toggle('open',chatOpen);
-  document.getElementById('ctoggle-icon').textContent=chatOpen?'✕':'💬';
-  document.getElementById('ctoggle-label').textContent=chatOpen?'Tancar':'Pregunta\'m!';
-  document.getElementById('chat-badge').style.display='none';
+window.toggleChat = function() {
+  chatOpen = !chatOpen;
+  document.getElementById('chat-window').classList.toggle('open', chatOpen);
+  document.getElementById('ctoggle-icon').textContent = chatOpen ? '✕' : '💬';
+  document.getElementById('ctoggle-label').textContent = chatOpen ? 'Tancar' : "Pregunta'm!";
+  document.getElementById('chat-badge').style.display = 'none';
+};
+
+window.qask = function(t) {
+  document.getElementById('chat-quick').style.display = 'none';
+  document.getElementById('chat-input').value = t;
+  window.sendMsg();
+};
+
+function ts() { return new Date().toLocaleTimeString('ca', {hour:'2-digit', minute:'2-digit'}); }
+
+function md(t) { return t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'); }
+
+function addMsg(txt, role) {
+  const c = document.getElementById('chat-msgs');
+  const d = document.createElement('div');
+  d.className = `msg ${role}`;
+  d.innerHTML = `<div class="msg-bubble">${md(txt)}</div><div class="msg-time">${ts()}</div>`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
 }
-function qask(t){ document.getElementById('chat-quick').style.display='none'; document.getElementById('chat-input').value=t; sendMsg(); }
-function ts(){ return new Date().toLocaleTimeString('ca',{hour:'2-digit',minute:'2-digit'}); }
-function md(t){ return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
-function addMsg(txt,role){
-  const c=document.getElementById('chat-msgs');
-  const d=document.createElement('div'); d.className=`msg ${role}`;
-  d.innerHTML=`<div class="msg-bubble">${md(txt)}</div><div class="msg-time">${ts()}</div>`;
-  c.appendChild(d); c.scrollTop=c.scrollHeight;
+
+function showTyping() {
+  const c = document.getElementById('chat-msgs');
+  const d = document.createElement('div');
+  d.className = 'msg bot'; d.id = 'typing';
+  d.innerHTML = '<div class="msg-bubble"><div class="typing-ind"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
 }
-function showTyping(){
-  const c=document.getElementById('chat-msgs');
-  const d=document.createElement('div'); d.className='msg bot'; d.id='typing';
-  d.innerHTML='<div class="msg-bubble"><div class="typing-ind"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
-  c.appendChild(d); c.scrollTop=c.scrollHeight;
-}
-function hideTyping(){ const t=document.getElementById('typing'); if(t)t.remove(); }
-async function sendMsg(){
-  const inp=document.getElementById('chat-input');
-  const txt=inp.value.trim(); if(!txt)return;
-  inp.value=''; document.getElementById('chat-quick').style.display='none';
-  addMsg(txt,'user'); hist.push({role:'user',content:txt}); showTyping();
-  document.getElementById('chat-send').disabled=true;
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:SYS,messages:hist})});
-    const d=await r.json();
-    const rep=d.content?.[0]?.text||'Ho sento, no he pogut processar la resposta.';
-    hideTyping(); addMsg(rep,'bot'); hist.push({role:'assistant',content:rep});
-  }catch(e){ hideTyping(); a
+
+function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+window.sendMsg = async function() {
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  document.getElementById('chat-quick').style.display = 'none';
+  addMsg(txt, 'user');
+  hist.push({role: 'user', content: txt});
+  showTyping();
+  document.getElementById('chat-send').disabled = true;
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({model: 'claude-sonnet-4-20250514', max_tokens: 400, system: SYS, messages: hist})
+    });
+    const data = await r.json();
+    const rep = data.content?.[0]?.text || 'Ho sento, no he pogut processar la resposta.';
+    hideTyping(); addMsg(rep, 'bot');
+    hist.push({role: 'assistant', content: rep});
+  } catch(e) {
+    hideTyping();
+    addMsg('Ho sento, error de connexió. Contacta directament per correu o telèfon.', 'bot');
+  }
+  document.getElementById('chat-send').disabled = false;
+};
+
+setTimeout(() => { document.getElementById('chat-badge').style.display = 'flex'; }, 3500);
+</script>
+</body>
+</html>
