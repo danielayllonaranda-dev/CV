@@ -566,7 +566,7 @@ window.sendForm = async function(e) {
 // 1. Ves a https://aistudio.google.com/apikey
 // 2. Clica "Create API key" (és gratuït, no cal targeta)
 // 3. Enganxa la clau aquí:
-const GEMINI_KEY = 'AIzaSyA-iAkyxUBi87gdwCpH1Frz3P0Rwte-SC8';
+const GEMINI_KEY = 'AIzaSyAXQ47S7f8hMXqVPwiJs_mEqxcnD4RIrro';
 
 const SYS = `Ets l'assistent virtual de'n Daniel Ayllón Aranda, integrat al seu currículum web. Respon preguntes sobre ell de manera professional, amable i concisa.
 
@@ -685,7 +685,14 @@ window.sendMsg = async function() {
     hist.push({ role: 'model', parts: [{ text: rep }] });
   } catch(e) {
     hideTyping();
-    addMsg('Ho sento, hi ha hagut un error: ' + e.message + '. Contacta amb en Daniel per email o telefon.', 'bot');
+    const msg = e.message || '';
+    let userMsg = 'Ho sento, no he pogut connectar. Prova-ho de nou en uns instants o contacta directament amb en Daniel: danielayllonaranda@gmail.com / +34 663 24 47 60';
+    if (msg.includes('quota') || msg.includes('rate') || msg.includes('limit')) {
+      userMsg = 'El xatbot ha arribat al limit de consultes per avui. Torna-ho a provar dema, o contacta directament amb en Daniel: danielayllonaranda@gmail.com';
+    } else if (msg.includes('API key') || msg.includes('key')) {
+      userMsg = 'Hi ha un problema de configuracio del xatbot. Contacta amb en Daniel directament: danielayllonaranda@gmail.com / +34 663 24 47 60';
+    }
+    addMsg(userMsg, 'bot');
   }
   document.getElementById('chat-send').disabled = false;
 };
