@@ -431,7 +431,7 @@
       <div>
         <h3 style="font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:1.1rem;">Informació de contacte</h3>
         <div class="contact-item"><div class="contact-icon">📞</div><div><div class="contact-label">Telèfon</div><div class="contact-value"><a href="tel:+34663244760">+34 663 24 47 60</a></div></div></div>
-        <div class="contact-item"><div class="contact-icon">✉️</div><div><div class="contact-label">Correu electrònic</div><div class="contact-value"><a href="/cdn-cgi/l/email-protection#1a7e7b74737f767b63767675747b687b747e7b5a7d777b737634797577"><span class="__cf_email__" data-cfemail="d5b1b4bbbcb0b9b4acb9b9babbb4a7b4bbb1b495b2b8b4bcb9fbb6bab8">[email&#160;protected]</span></a></div></div></div>
+        <div class="contact-item"><div class="contact-icon">✉️</div><div><div class="contact-label">Correu electrònic</div><div class="contact-value"><a href="mailto:danielayllonaranda@gmail.com">danielayllonaranda@gmail.com</a></div></div></div>
         <div class="contact-item"><div class="contact-icon">📍</div><div><div class="contact-label">Adreça</div><div class="contact-value">Passeig Ermita, 7<br>Castellbisbal, 08755</div></div></div>
         <div class="contact-item"><div class="contact-icon">🕐</div><div><div class="contact-label">Disponibilitat</div><div class="contact-value">Caps de setmana i vacances</div></div></div>
         <div style="margin-top:1.2rem; padding:1.1rem; background:rgba(79,142,247,0.06); border:1px solid var(--border); border-radius:var(--radius);">
@@ -659,7 +659,7 @@ window.sendMsg = async function() {
   }
 
   try {
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY;
     const body = {
       system_instruction: { parts: [{ text: SYS }] },
       contents: hist,
@@ -671,13 +671,15 @@ window.sendMsg = async function() {
       body: JSON.stringify(body)
     });
     const data = await r.json();
-    const rep = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Ho sento, no he pogut processar la resposta.';
+    if (data.error) throw new Error(data.error.message);
+    const rep = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rep) throw new Error('Resposta buida');
     hideTyping();
     addMsg(rep, 'bot');
     hist.push({ role: 'model', parts: [{ text: rep }] });
   } catch(e) {
     hideTyping();
-    addMsg('Ho sento, error de connexio. Contacta amb en Daniel per email o telefon.', 'bot');
+    addMsg('Ho sento, hi ha hagut un error: ' + e.message + '. Contacta amb en Daniel per email o telefon.', 'bot');
   }
   document.getElementById('chat-send').disabled = false;
 };
