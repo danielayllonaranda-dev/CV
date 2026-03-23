@@ -659,10 +659,15 @@ window.sendMsg = async function() {
   }
 
   try {
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + GEMINI_KEY;
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
+    // El context sobre en Daniel va inclòs com a primer intercanvi del xat
+    const fullContents = [
+      { role: 'user', parts: [{ text: 'Ets un assistent virtual de currículum. Aquí tens el context:\n\n' + SYS + '\n\nEntesos?' }] },
+      { role: 'model', parts: [{ text: 'Entesos! Estic llest per respondre preguntes sobre en Daniel Ayllón Aranda de manera professional i en català.' }] },
+      ...hist
+    ];
     const body = {
-      system_instruction: { parts: [{ text: SYS }] },
-      contents: hist,
+      contents: fullContents,
       generationConfig: { maxOutputTokens: 400, temperature: 0.7 }
     };
     const r = await fetch(url, {
@@ -672,8 +677,9 @@ window.sendMsg = async function() {
     });
     const data = await r.json();
     if (data.error) throw new Error(data.error.message);
-    const rep = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rep) throw new Error('Resposta buida');
+    if (!data.candidates || data.candidates.length === 0) throw new Error('Cap candidat retornat (possible filtre de seguretat)');
+    const rep = data.candidates[0]?.content?.parts?.[0]?.text;
+    if (!rep) throw new Error('Text de resposta buit');
     hideTyping();
     addMsg(rep, 'bot');
     hist.push({ role: 'model', parts: [{ text: rep }] });
