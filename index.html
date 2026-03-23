@@ -441,15 +441,15 @@
       <div>
         <h3 style="font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:1.1rem;">Formulari de contacte</h3>
         <form id="cform" onsubmit="sendForm(event)">
-          <div class="form-group"><label>Nom i cognoms *</label><input type="text" class="form-input" id="fn" placeholder="El teu nom" required></div>
-          <div class="form-group"><label>Correu electrònic *</label><input type="email" class="form-input" id="fe" placeholder="correu@exemple.com" required></div>
-          <div class="form-group"><label>Empresa / Organització</label><input type="text" class="form-input" id="fc" placeholder="Nom de l'empresa (opcional)"></div>
-          <div class="form-group"><label>Assumpte *</label><input type="text" class="form-input" id="fs" placeholder="Per exemple: Oferta de treball" required></div>
-          <div class="form-group"><label>Missatge *</label><textarea class="form-textarea" id="fm" placeholder="Explica'm en què puc ajudar-te..." required></textarea></div>
+          <div class="form-group"><label>Nom i cognoms *</label><input type="text" class="form-input" name="nom" placeholder="El teu nom" required></div>
+          <div class="form-group"><label>Correu electrònic *</label><input type="email" class="form-input" name="email" placeholder="correu@exemple.com" required></div>
+          <div class="form-group"><label>Empresa / Organització</label><input type="text" class="form-input" name="empresa" placeholder="Nom de l'empresa (opcional)"></div>
+          <div class="form-group"><label>Assumpte *</label><input type="text" class="form-input" name="assumpte" placeholder="Per exemple: Oferta de treball" required></div>
+          <div class="form-group"><label>Missatge *</label><textarea class="form-textarea" name="missatge" placeholder="Explica'm en què puc ajudar-te..." required></textarea></div>
           <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Enviar missatge ✈</button>
         </form>
-        <div class="form-success" id="fsuccess">✅ Missatge enviat! Et respondré al més aviat possible.</div>
-        <p style="font-size:0.7rem; color:var(--muted); margin-top:0.7rem; text-align:center;">El formulari obre el teu client de correu predeterminat.</p>
+        <div class="form-success" id="fsuccess">✅ Missatge enviat correctament! Et respondré aviat.</div>
+        <p style="font-size:0.7rem; color:var(--muted); margin-top:0.7rem; text-align:center;">⚙️ Cal configurar Formspree. Consulta el README.</p>
       </div>
     </div>
   </div>
@@ -493,7 +493,7 @@
 </div>
 
 <script>
-// ── EDAT I CARNET DINÀMICS ──
+// ── EDAT I CARNET ──
 (function(){
   const born = new Date(2005, 6, 10);
   const now = new Date();
@@ -510,12 +510,12 @@
 })();
 
 // ── ESTRELLES ──
-const cv = document.getElementById('starfield'), cx = cv.getContext('2d');
+const cvs = document.getElementById('starfield'), ctx2 = cvs.getContext('2d');
 let stars = [];
-function rsz() { cv.width = innerWidth; cv.height = innerHeight; }
-function init() { stars=[]; for(let i=0;i<150;i++) stars.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.1+0.2,o:Math.random()*0.55+0.12,s:Math.random()*0.2+0.04}); }
-function draw() { cx.clearRect(0,0,cv.width,cv.height); stars.forEach(s=>{ cx.beginPath(); cx.arc(s.x,s.y,s.r,0,Math.PI*2); cx.fillStyle=`rgba(200,215,255,${s.o})`; cx.fill(); s.y+=s.s; if(s.y>cv.height){s.y=0;s.x=Math.random()*cv.width;} }); requestAnimationFrame(draw); }
-rsz(); init(); draw(); addEventListener('resize',()=>{rsz();init();});
+function rsz() { cvs.width = innerWidth; cvs.height = innerHeight; }
+function initStars() { stars=[]; for(let i=0;i<150;i++) stars.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height,r:Math.random()*1.1+0.2,o:Math.random()*0.55+0.12,s:Math.random()*0.2+0.04}); }
+function draw() { ctx2.clearRect(0,0,cvs.width,cvs.height); stars.forEach(s=>{ ctx2.beginPath(); ctx2.arc(s.x,s.y,s.r,0,Math.PI*2); ctx2.fillStyle=`rgba(200,215,255,${s.o})`; ctx2.fill(); s.y+=s.s; if(s.y>cvs.height){s.y=0;s.x=Math.random()*cvs.width;} }); requestAnimationFrame(draw); }
+rsz(); initStars(); draw(); addEventListener('resize',()=>{rsz();initStars();});
 
 // ── NAVEGACIÓ ──
 window.show = function(id) {
@@ -529,21 +529,44 @@ window.show = function(id) {
   }, 120);
 };
 
-// ── FORMULARI ──
-window.sendForm = function(e) {
+// ── FORMULARI (Formspree) ──
+// IMPORTANT: substitueix YOUR_FORM_ID per l'ID del teu formulari de formspree.io
+const FORMSPREE_ID = 'xzdjnzlk';
+
+window.sendForm = async function(e) {
   e.preventDefault();
-  const n = document.getElementById('fn').value;
-  const c = document.getElementById('fc').value;
-  const s = document.getElementById('fs').value;
-  const m = document.getElementById('fm').value;
-  const body = `Nom: ${n}\nEmpresa: ${c}\n\n${m}`;
-  window.location.href = `mailto:danielayllonaranda@gmail.com?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(body)}`;
-  document.getElementById('fsuccess').style.display = 'block';
-  document.getElementById('cform').reset();
+  const form = document.getElementById('cform');
+  const btn = form.querySelector('button[type=submit]');
+  if (FORMSPREE_ID === 'YOUR_FORM_ID') {
+    document.getElementById('fsuccess').textContent = '⚙️ Cal configurar Formspree primer. Consulta el README.';
+    document.getElementById('fsuccess').style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Enviant...';
+  try {
+    const data = new FormData(form);
+    const r = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      method: 'POST', body: data, headers: { 'Accept': 'application/json' }
+    });
+    if (r.ok) {
+      document.getElementById('fsuccess').style.display = 'block';
+      form.reset();
+    } else {
+      btn.textContent = 'Error. Torna a intentar-ho.';
+      btn.disabled = false;
+    }
+  } catch(err) {
+    btn.textContent = 'Error de xarxa.';
+    btn.disabled = false;
+  }
 };
 
-// ── XATBOT ──
-let chatOpen = false, hist = [];
+// ── XATBOT (IA via Google Gemini — gratuït) ──
+// 1. Ves a https://aistudio.google.com/apikey
+// 2. Clica "Create API key" (és gratuït, no cal targeta)
+// 3. Enganxa la clau aquí:
+const GEMINI_KEY = 'AIzaSyA-iAkyxUBi87gdwCpH1Frz3P0Rwte-SC8';
 
 const SYS = `Ets l'assistent virtual de'n Daniel Ayllón Aranda, integrat al seu currículum web. Respon preguntes sobre ell de manera professional, amable i concisa.
 
@@ -554,10 +577,10 @@ Informació sobre Daniel:
 - Contacte: +34 663 24 47 60 | danielayllonaranda@gmail.com
 
 Experiència:
-- Expositor Saló Ensenyament (UB, Març 2026): divulgació Física/Química/EET.
+- Expositor Saló Ensenyament (UB, Març 2026): divulgació Física/Química/EET a infants i famílies.
 - Intervenció educativa TDA/TEA/AACC (Escola EFA, Des.2025-Gen.2026).
 - Monitor de Lleure, Casal, Planetari i Telescopis (Polaris Lleure, esporàdic).
-- Monitor de Lleure (Quiràlia-Ajuntament Igualada, Des.2024-Gen.2025): Saló de la Infància i Planetari.
+- Monitor de Lleure (Quiràlia-Igualada, Des.2024-Gen.2025): Saló de la Infància i Planetari.
 - Monitor Colònies en anglès (Eix Estels-Mas Banyeres, Jul.2024).
 - Professor repàs particular (ciències, arts, tecnologia, llengua).
 - Coordinació Teatre i Música INS Castellbisbal (2018-2023, 5 anys).
@@ -573,10 +596,12 @@ Personalitat: Tranquil, endreçat, educat, amable, esforçat. Apassionat per mú
 
 Respon SEMPRE en català (o en l'idioma que t'escrigui l'usuari). Respostes breus (2-4 frases), professionals i entusiastes. Si demanen contacte, dona email i telèfon.`;
 
+let chatOpen = false, hist = [];
+
 window.toggleChat = function() {
   chatOpen = !chatOpen;
   document.getElementById('chat-window').classList.toggle('open', chatOpen);
-  document.getElementById('ctoggle-icon').textContent = chatOpen ? '✕' : '💬';
+  document.getElementById('ctoggle-icon').textContent = chatOpen ? '\u2715' : '\ud83d\udcac';
   document.getElementById('ctoggle-label').textContent = chatOpen ? 'Tancar' : "Pregunta'm!";
   document.getElementById('chat-badge').style.display = 'none';
 };
@@ -588,14 +613,18 @@ window.qask = function(t) {
 };
 
 function ts() { return new Date().toLocaleTimeString('ca', {hour:'2-digit', minute:'2-digit'}); }
-
-function md(t) { return t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'); }
+function md(t) {
+  return t
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+}
 
 function addMsg(txt, role) {
   const c = document.getElementById('chat-msgs');
   const d = document.createElement('div');
-  d.className = `msg ${role}`;
-  d.innerHTML = `<div class="msg-bubble">${md(txt)}</div><div class="msg-time">${ts()}</div>`;
+  d.className = 'msg ' + role;
+  d.innerHTML = '<div class="msg-bubble">' + md(txt) + '</div><div class="msg-time">' + ts() + '</div>';
   c.appendChild(d);
   c.scrollTop = c.scrollHeight;
 }
@@ -607,7 +636,6 @@ function showTyping() {
   d.innerHTML = '<div class="msg-bubble"><div class="typing-ind"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
   c.appendChild(d); c.scrollTop = c.scrollHeight;
 }
-
 function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
 
 window.sendMsg = async function() {
@@ -617,27 +645,44 @@ window.sendMsg = async function() {
   inp.value = '';
   document.getElementById('chat-quick').style.display = 'none';
   addMsg(txt, 'user');
-  hist.push({role: 'user', content: txt});
+  hist.push({ role: 'user', parts: [{ text: txt }] });
   showTyping();
   document.getElementById('chat-send').disabled = true;
+
+  if (GEMINI_KEY === 'YOUR_GEMINI_KEY') {
+    setTimeout(function() {
+      hideTyping();
+      addMsg('El xatbot encara no esta configurat. Consulta el README per activar-lo en 2 minuts!', 'bot');
+      document.getElementById('chat-send').disabled = false;
+    }, 500);
+    return;
+  }
+
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
+    const body = {
+      system_instruction: { parts: [{ text: SYS }] },
+      contents: hist,
+      generationConfig: { maxOutputTokens: 400, temperature: 0.7 }
+    };
+    const r = await fetch(url, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({model: 'claude-sonnet-4-20250514', max_tokens: 400, system: SYS, messages: hist})
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
     });
     const data = await r.json();
-    const rep = data.content?.[0]?.text || 'Ho sento, no he pogut processar la resposta.';
-    hideTyping(); addMsg(rep, 'bot');
-    hist.push({role: 'assistant', content: rep});
+    const rep = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Ho sento, no he pogut processar la resposta.';
+    hideTyping();
+    addMsg(rep, 'bot');
+    hist.push({ role: 'model', parts: [{ text: rep }] });
   } catch(e) {
     hideTyping();
-    addMsg('Ho sento, error de connexió. Contacta directament per correu o telèfon.', 'bot');
+    addMsg('Ho sento, error de connexio. Contacta amb en Daniel per email o telefon.', 'bot');
   }
   document.getElementById('chat-send').disabled = false;
 };
 
-setTimeout(() => { document.getElementById('chat-badge').style.display = 'flex'; }, 3500);
+setTimeout(function() { document.getElementById('chat-badge').style.display = 'flex'; }, 3500);
 </script>
 </body>
 </html>
